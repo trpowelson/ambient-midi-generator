@@ -6,6 +6,7 @@ import mido
 from mido import MidiFile, MidiTrack, Message, MetaMessage
 import random
 from mingus.core import chords, scales, progressions
+import music_section
 
 NOTES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 OCTAVES = list(range(11))
@@ -87,9 +88,11 @@ def create_midi_file(chord_sequence, output_file="output.mid", OCTAVE=4):
     track = MidiTrack()
     melody_track = MidiTrack()
     accent_track = MidiTrack()
+    test_track = MidiTrack()
     mid.tracks.append(track)
     mid.tracks.append(melody_track)
     mid.tracks.append(accent_track)
+    mid.tracks.append(test_track)
 
     # Set tempo, in microseconds per beat
     us_per_beat=int(mido.tempo2bpm(tempo))
@@ -99,11 +102,15 @@ def create_midi_file(chord_sequence, output_file="output.mid", OCTAVE=4):
     chord_num=0
     added_accents_total_time=0
 
+    my_test_section=music_section.music_section(test_track, TICKS_PER_BAR*4)
+
     for chord in chord_sequence:
         chord_duration_bars=random.choice(chord_duration_bars_choices)
         print(f"Chord {chord_num} duration: {chord_duration_bars} bars")
         chord_duration = TICKS_PER_BAR*chord_duration_bars  # Duration of each chord in ticks (adjust as needed)
         accent1_offset = TICKS_PER_BAR*accent1_offset_bars
+        
+        my_test_section.add_chord(chord)
         
         chord_num=chord_num+1
         time_delta=0
