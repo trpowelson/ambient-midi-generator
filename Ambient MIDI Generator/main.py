@@ -45,106 +45,34 @@ def test_chord_in_key(chord):
 
 def create_midi_file(chord_sequence, output_file="output.mid", OCTAVE=4):   
     
-
     mid = MidiFile(type=1)
     TICKS_PER_BAR = mid.ticks_per_beat*4
     
-    track = MidiTrack()
+    chord_track = MidiTrack()
     melody_track = MidiTrack()
     accent_track = MidiTrack()
-    test_track = MidiTrack()
-    mid.tracks.append(track)
+    mid.tracks.append(chord_track)
     mid.tracks.append(melody_track)
     mid.tracks.append(accent_track)
-    mid.tracks.append(test_track)
 
     # Set tempo, in microseconds per beat
     us_per_beat=int(mido.tempo2bpm(tempo))
-    track.append(MetaMessage('set_tempo', tempo=us_per_beat))
+    chord_track.append(MetaMessage('set_tempo', tempo=us_per_beat))
 
-    # Add chords to the MIDI track
-    chord_num=0
-    added_accents_total_time=0
+    # Initialize music sections for each of our tracks
+    chord_section=music_section(chord_track)
+    melody_section=music_section(melody_track)
+    accent_section=music_section(accent_track)
 
-    my_test_section=music_section(test_track)
-
+    # Add each chord to each track
     for chord in chord_sequence:
         chord_duration_bars=random.choice(chord_duration_bars_choices)
-        print(f"Chord {chord_num} duration: {chord_duration_bars} bars")
-        chord_duration = TICKS_PER_BAR*chord_duration_bars  # Duration of each chord in ticks (adjust as needed)
-        accent1_offset = TICKS_PER_BAR*accent1_offset_bars
+        chord_duration = chord_duration_bars*TICKS_PER_BAR
         
-        my_test_section.add_chord(chord,TICKS_PER_BAR*chord_duration_bars,ChordType.ACCENT)
-        
-        
-        chord_num=chord_num+1
-        time_delta=0
-        note_num=0
-        for note_str in chord:
-            note_num=note_num+1
-            note=note_to_number(note_str, OCTAVE)
-            track.append(Message('note_on', note=note, velocity=64, time=0))
-            
-            if note_num==1:
-                # When we get to the first note, first we find the times for this note and the next two notes
-                # The first two notes are random length
-                mel_note_duration1_bars=random.randint(1,round(chord_duration_bars/2))
-                mel_note_duration2_bars=random.randint(1,(chord_duration_bars-mel_note_duration1_bars))
-                # The last note will be the remainder of the bar (or 0 if the first two notes add up to 8 bars)
-                mel_note_duration3_bars=(chord_duration_bars-(mel_note_duration1_bars+mel_note_duration2_bars))
-                
-                # Add this first note to the melody track
-                melody_track.append(Message('note_on', note=note, velocity=64, time=0))
-                melody_track.append(Message('note_off', note=note, velocity=64, time=mel_note_duration1_bars*TICKS_PER_BAR))
-            if note_num==2:
-                # The second note has time=0 to start immediately after the first
-                melody_track.append(Message('note_on', note=note, velocity=64, time=0))
-                melody_track.append(Message('note_off', note=note, velocity=64, time=mel_note_duration2_bars*TICKS_PER_BAR))
-            if note_num==3 and mel_note_duration3_bars > 0:
-                # The third note has time=0 to start immediately after the second
-                melody_track.append(Message('note_on', note=note, velocity=64, time=0))
-                melody_track.append(Message('note_off', note=note, velocity=64, time=mel_note_duration3_bars*TICKS_PER_BAR))
-        
-        num_accents=random.randint(2,30)
-        accent_time=round(TICKS_PER_BAR/(2**random.randint(0,2))) # 1/2, 1/4, or 1/8 note
-        octave_offset=0
-        for accent_num in range(1,num_accents):
-            if accent_num%3==0:
-                octave_offset=random.randint(-2,2)
-            note_str=chord[accent_num%3]
-            note=note_to_number(note_str, OCTAVE+octave_offset)
-            
-                        
-            if accent_num==1:
-                if chord_num==1:
-                    accent_track.append(Message('note_on', note=note, velocity=64, time=accent1_offset))
-                    accent_track.append(Message('note_off', note=note, velocity=64, time=accent_time))
-                    added_accents_total_time+=accent_time+accent1_offset
-                else:
-                    if accent1_offset+prev_chord_duration-added_accents_total_time>=0:
-                        # This is the first accent on a chord other than the first one.  
-                        # Add the accent note to the start of where the next chord starts, plus the start offset within the chord
-                        print("added" + str(added_accents_total_time))
-                        print("chord_duration" + str(chord_duration))
-                        accent_track.append(Message('note_on', note=note, velocity=64, time=accent1_offset+prev_chord_duration-added_accents_total_time))
-                        accent_track.append(Message('note_off', note=note, velocity=64, time=accent_time))
-                
-                added_accents_total_time=accent1_offset+accent_time # Reset the time since we started a new chord
-            
-                prev_chord_duration=chord_duration #remember this chord's length so we can use it to get the start time of the next chord
-            else:
-                if added_accents_total_time+accent_time < chord_duration:
-                    accent_track.append(Message('note_on', note=note, velocity=64, time=0))
-                    accent_track.append(Message('note_off', note=note, velocity=64, time=accent_time))
-                    added_accents_total_time+=accent_time
-
-        note_num=0
-        for note_str in chord:
-            note_num=note_num+1
-            note=note_to_number(note_str, OCTAVE)
-            track.append(Message('note_off', note=note, velocity=64, time=chord_duration-time_delta))
-            time_delta=chord_duration
-            
+        chord_section.add_chord(chord,chord_duration,ChordType.REGULAR)
+        melody_section.add_chord(chord,chord_duration,ChordType.MELODY)
+        accent_section.add_chord(chord,chord_duration,ChordType.ACCENT)
+    
 
     # Save the MIDI file
     mid.save(output_file)

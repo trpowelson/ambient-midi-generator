@@ -3,9 +3,7 @@ from mido import MidiFile, MidiTrack, Message, MetaMessage
 from music_utilities import *
 
 
-
 class music_section:
-    
     
     def __init__(self, track):
         self.track = track
