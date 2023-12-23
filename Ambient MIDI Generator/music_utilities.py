@@ -1,10 +1,11 @@
 # utilities.py
 from enum import Enum
 
-test_constant = 1
 NOTES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 OCTAVES = list(range(11))
 NOTES_IN_OCTAVE = len(NOTES)
+TICKS_PER_BAR = 1920    # Note once we create the MIDI object we can calculate
+                        # and override this value
 
 errors = {
     'notes': 'Bad input, please refer this spec-\n'

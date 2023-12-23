@@ -2,9 +2,8 @@
 #https://medium.com/@stevehiehn/how-to-generate-music-with-python-the-basics-62e8ea9b99a5
 
 
-import mido
+import mido, random
 from mido import MidiFile, MidiTrack, Message, MetaMessage
-import random
 from mingus.core import chords, scales, progressions
 
 from music_utilities import *
@@ -75,7 +74,8 @@ def create_midi_file(chord_sequence, output_file="output.mid", OCTAVE=4):
         chord_duration = TICKS_PER_BAR*chord_duration_bars  # Duration of each chord in ticks (adjust as needed)
         accent1_offset = TICKS_PER_BAR*accent1_offset_bars
         
-        my_test_section.add_chord(chord,TICKS_PER_BAR*chord_duration_bars,ChordType.REGULAR)
+        my_test_section.add_chord(chord,TICKS_PER_BAR*chord_duration_bars,ChordType.ACCENT)
+        
         
         chord_num=chord_num+1
         time_delta=0
@@ -154,7 +154,6 @@ if __name__ == "__main__":
     num_chords = 4  # Change this value to generate a different number of chords
     tempo = 60 # Tempo in BPM
     chord_duration_bars_choices = [2,4,8,16]
-    print("test constant "+str(test_constant))
     song_key = "f"  # uppercase for major, lowercase for minor
     song_scale_notes = scales.get_notes(song_key)
     accent1_offset_bars = 1
