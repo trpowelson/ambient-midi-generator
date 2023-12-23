@@ -6,46 +6,11 @@ import mido
 from mido import MidiFile, MidiTrack, Message, MetaMessage
 import random
 from mingus.core import chords, scales, progressions
-import music_section
 
-NOTES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
-OCTAVES = list(range(11))
-NOTES_IN_OCTAVE = len(NOTES)
-
-errors = {
-    'notes': 'Bad input, please refer this spec-\n'
-}
+from music_utilities import *
+from music_section import *
 
 
-def swap_accidentals(note):
-    if note == 'Db':
-        return 'C#'
-    if note == 'D#':
-        return 'Eb'
-    if note == 'E#':
-        return 'F'
-    if note == 'Gb':
-        return 'F#'
-    if note == 'G#':
-        return 'Ab'
-    if note == 'A#':
-        return 'Bb'
-    if note == 'B#':
-        return 'C'
-
-    return note
-
-
-def note_to_number(note: str, octave: int) -> int:
-    note = swap_accidentals(note)
-    assert note in NOTES, errors['notes']
-    assert octave in OCTAVES, errors['notes']
-
-    note = NOTES.index(note)
-    note += (NOTES_IN_OCTAVE * octave)
-
-    assert 0 <= note <= 127, errors['notes']
-    return note
 
 def generate_chord_sequence(num_chords=4):
     chord_list_shorthand = [
@@ -102,7 +67,7 @@ def create_midi_file(chord_sequence, output_file="output.mid", OCTAVE=4):
     chord_num=0
     added_accents_total_time=0
 
-    my_test_section=music_section.music_section(test_track, TICKS_PER_BAR*4)
+    my_test_section=music_section(test_track)
 
     for chord in chord_sequence:
         chord_duration_bars=random.choice(chord_duration_bars_choices)
@@ -110,7 +75,7 @@ def create_midi_file(chord_sequence, output_file="output.mid", OCTAVE=4):
         chord_duration = TICKS_PER_BAR*chord_duration_bars  # Duration of each chord in ticks (adjust as needed)
         accent1_offset = TICKS_PER_BAR*accent1_offset_bars
         
-        my_test_section.add_chord(chord)
+        my_test_section.add_chord(chord,TICKS_PER_BAR*chord_duration_bars,ChordType.REGULAR)
         
         chord_num=chord_num+1
         time_delta=0
@@ -189,7 +154,7 @@ if __name__ == "__main__":
     num_chords = 4  # Change this value to generate a different number of chords
     tempo = 60 # Tempo in BPM
     chord_duration_bars_choices = [2,4,8,16]
- 
+    print("test constant "+str(test_constant))
     song_key = "f"  # uppercase for major, lowercase for minor
     song_scale_notes = scales.get_notes(song_key)
     accent1_offset_bars = 1
