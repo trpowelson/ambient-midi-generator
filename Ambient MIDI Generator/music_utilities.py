@@ -6,6 +6,7 @@ OCTAVES = list(range(11))
 NOTES_IN_OCTAVE = len(NOTES)
 TICKS_PER_BAR = 1920    # Note once we create the MIDI object we can calculate
                         # and override this value
+MAX_ACCENTS_IN_SECTION = 1000
 
 errors = {
     'notes': 'Bad input, please refer this spec-\n'

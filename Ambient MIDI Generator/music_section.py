@@ -12,27 +12,24 @@ class music_section:
         self.time_added=0
         self.num_chords_added=0
         
-    # General routine for adding chords, this will call helper routines that have more
-    # specific chord logic
-    def add_chord(self, chord, chord_duration, chord_type):
-        print("adding chord: ", str(chord))
-        match chord_type:
-            case ChordType.REGULAR:
-                self.add_regular_chord(chord, chord_duration)
-            case ChordType.MELODY:
-                self.add_melody_chord(chord, chord_duration)
-            case ChordType.ACCENT:
-                self.add_accent_chord(chord, chord_duration)
-                    
+    # 
+    # 
+    def update_chord_tracking_info(self, chord_duration):
         self.next_time=chord_duration-self.time_added
         self.prev_chord_duration=chord_duration
         self.num_chords_added+=1
     
-    # Helper routines with logic for each specific chord type.  Each of these
-    # routines is responsible for setting self.time_added to track how many
-    # notes were added, so that the next invocation of add_chord can set
-    # the appropriate start times
-    
+    # Routines with logic for each specific chord type.  Each of these
+    # routines is responsible for:
+    #  - setting self.time_added to track how many notes were added
+    #  - calling update_chord_tracking_info so we can track information for the next chord
+
+    def add_empty_chord(self, chord_duration):
+        # Save information about this chord so we have it when adding the next chord
+        self.time_added=0
+        self.update_chord_tracking_info(self.next_time+chord_duration)
+
+
     def add_regular_chord(self, chord, chord_duration):
         octave=4
         note_num=0
@@ -59,12 +56,12 @@ class music_section:
         
         # Save information about this chord so we have it when adding the next chord
         self.time_added=chord_duration
+        self.update_chord_tracking_info(chord_duration)
 
     def add_melody_chord(self, chord, chord_duration):
         octave=4
         note_num=0
         chord_duration_bars=int(chord_duration/TICKS_PER_BAR)
-        print("chord bars" + str(chord_duration_bars))
         for note_str in chord:
             note_num=note_num+1
             note=note_to_number(note_str, octave)
@@ -90,20 +87,31 @@ class music_section:
         
         # Save information about this chord so we have it when adding the next chord
         self.time_added=chord_duration
+        self.update_chord_tracking_info(chord_duration)
 
-    def add_accent_chord(self, chord, chord_duration):
+    def add_accent_chord(self, chord, chord_duration,accent_full_modifier=False):
         octave=4
-        note_num=0
-        chord_duration_bars=int(chord_duration/TICKS_PER_BAR)
-        num_accents=random.randint(2,30)
-        accent_time=round(TICKS_PER_BAR/(2**random.randint(0,2))) # 1/2, 1/4, or 1/8 note
+        if accent_full_modifier == True:
+            num_accents= MAX_ACCENTS_IN_SECTION
+            accent_time=round(TICKS_PER_BAR/(4)) # 1/2, 1/4, or 1/8 bar
+            accent1_offset=0
+        else:
+            num_accents=random.randint(2,30)
+            accent_time=round(TICKS_PER_BAR/(2**random.randint(0,2))) # 1/2, 1/4, or 1/8 bar
+            accent1_offset = TICKS_PER_BAR*1
         octave_offset=0
-        accent1_offset = TICKS_PER_BAR*1
+
         
         # the accent note starts at the offset past the start of the chord
         self.next_time+=accent1_offset
+
+        added_accents_total_time=0
+        accent_num=0
+        while added_accents_total_time <= chord_duration:
+            accent_num+=1
+            if accent_num>num_accents:
+                break
         
-        for accent_num in range(1,num_accents):
             if accent_num%3==0:
                 octave_offset=random.randint(-2,2)
             note_str=chord[accent_num%3]
@@ -123,3 +131,4 @@ class music_section:
         
         # Save information about this chord so we have it when adding the next chord
         self.time_added=added_accents_total_time
+        self.update_chord_tracking_info(chord_duration)
