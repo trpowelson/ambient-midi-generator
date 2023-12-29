@@ -62,21 +62,30 @@ class music_section:
         octave=4
         note_num=0
         chord_duration_bars=int(chord_duration/TICKS_PER_BAR)
+        mel_note_duration1_bars=0
+        mel_note_duration2_bars=0
+        mel_note_duration3_bars=0
+        
         for note_str in chord:
             note_num=note_num+1
             note=note_to_number(note_str, octave)
             if note_num==1:
                 # When we get to the first note, first we find the times for this note and the next two notes
                 # The first two notes are random length
-                mel_note_duration1_bars=random.randint(1,round(chord_duration_bars/2))
-                mel_note_duration2_bars=random.randint(1,(chord_duration_bars-mel_note_duration1_bars))
-                # The last note will be the remainder of the bar (or 0 if the first two notes add up to 8 bars)
-                mel_note_duration3_bars=(chord_duration_bars-(mel_note_duration1_bars+mel_note_duration2_bars))
+                rand_upper_bound=round(chord_duration_bars/2)
+                if rand_upper_bound==0:
+                    rand_upper_bound=1
+                mel_note_duration1_bars=random.randint(1,rand_upper_bound)
+                
+                if mel_note_duration1_bars<chord_duration_bars:
+                    mel_note_duration2_bars=random.randint(1,(chord_duration_bars-mel_note_duration1_bars))
+                    # The last note will be the remainder of the bar (or 0 if the first two notes add up to 8 bars)
+                    mel_note_duration3_bars=(chord_duration_bars-(mel_note_duration1_bars+mel_note_duration2_bars))
                 
                 # Add this first note to the melody track
                 self.track.append(Message('note_on', note=note, velocity=64, time=self.next_time))
                 self.track.append(Message('note_off', note=note, velocity=64, time=mel_note_duration1_bars*TICKS_PER_BAR))
-            if note_num==2:
+            if note_num==2 and mel_note_duration2_bars > 0:
                 # The second note has time=0 to start immediately after the first
                 self.track.append(Message('note_on', note=note, velocity=64, time=0))
                 self.track.append(Message('note_off', note=note, velocity=64, time=mel_note_duration2_bars*TICKS_PER_BAR))

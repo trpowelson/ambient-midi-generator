@@ -72,14 +72,22 @@ def create_midi_file(chord_sequence, output_file):
         chord_duration_bars=random.choice(chord_duration_bars_choices)
         chord_duration = chord_duration_bars*TICKS_PER_BAR
         
-        chord_section.add_regular_chord(chord,chord_duration)
-        melody_section.add_melody_chord(chord,chord_duration)
-        if random.randint(0,1) == 1:
-            accent_section.add_accent_chord(chord,chord_duration)
-        else:
-            accent_section.add_empty_chord(chord_duration)
+        while True:
+            chord_section.add_regular_chord(chord,chord_duration)
+            melody_section.add_melody_chord(chord,chord_duration)
+            if random.randint(0,1) == 1:
+                accent_section.add_accent_chord(chord,chord_duration)
+            else:
+                accent_section.add_empty_chord(chord_duration)
 
-        full_accent_section.add_accent_chord(chord,chord_duration,True)
+            full_accent_section.add_accent_chord(chord,chord_duration,True)
+            
+            # If the chord length is 1 bar, we will randomly repeat the same chord
+            if chord_duration_bars == 1:
+                if random.randint(0,1) == 1:
+                    break
+            else:
+                break
 
 
     # Save the MIDI file
@@ -87,10 +95,10 @@ def create_midi_file(chord_sequence, output_file):
     print(f"MIDI file '{output_file}' generated successfully.")
 
 if __name__ == "__main__":
-    num_chords = 4000  # Change this value to generate a different number of chords
+    num_chords = 20  # Change this value to generate a different number of chords
     tempo = 60 # Tempo in BPM
-    chord_duration_bars_choices = [2,4,8,16]
-    song_key = "f"  # uppercase for major, lowercase for minor
+    chord_duration_bars_choices = [1,2,4,8,16]
+    song_key = "G"  # uppercase for major, lowercase for minor
     song_scale_notes = scales.get_notes(song_key)
     accent1_offset_bars = 1
     
