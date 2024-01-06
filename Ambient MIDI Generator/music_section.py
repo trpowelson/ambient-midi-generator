@@ -6,15 +6,26 @@ from music_utilities import *
 class music_section:
     
     def __init__(self, track):
+        """
+        Initialize the music section
+
+        Args:
+            track (MidiTrack): The instance of MidiTrack to add notes to
+        """
         self.track = track
         self.prev_chord_duration = 0
         self.next_time=0
         self.time_added=0
         self.num_chords_added=0
         
-    # 
-    # 
     def update_chord_tracking_info(self, chord_duration):
+        """
+        Update the tracking information for the next chord to be added.  Each routine that adds chords
+        should call this after the chord is added.
+
+        Args:
+            chord_duration (int): duration of the chord that was just added
+        """
         self.next_time=chord_duration-self.time_added
         self.prev_chord_duration=chord_duration
         self.num_chords_added+=1
@@ -25,12 +36,25 @@ class music_section:
     #  - calling update_chord_tracking_info so we can track information for the next chord
 
     def add_empty_chord(self, chord_duration):
+        """
+        Add an empty chord to the track.  This is used to add a rest between chords.
+
+        Args:
+            chord_duration (int): duration of empty chord to add
+        """
         # Save information about this chord so we have it when adding the next chord
         self.time_added=0
         self.update_chord_tracking_info(self.next_time+chord_duration)
 
 
     def add_regular_chord(self, chord, chord_duration):
+        """
+        Add a regular chord, where all notes are played at the same time for the entire duration
+
+        Args:
+            chord (string): chord to add
+            chord_duration (int): duration of chord to add
+        """
         octave=4
         for note_num, note_str in enumerate(chord):
             note=note_to_number(note_str, octave)
@@ -59,6 +83,13 @@ class music_section:
         self.update_chord_tracking_info(chord_duration)
 
     def add_melody_chord(self, chord, chord_duration):
+        """
+        Add a melody chord, where one note of the chord is played at a time for the entire duration
+
+        Args:
+            chord (string): chord to add
+            chord_duration (int): duration of chord to add
+        """
         octave=4
         chord_duration_bars=int(chord_duration/TICKS_PER_BAR)
         mel_note_duration1_bars=0
@@ -97,6 +128,16 @@ class music_section:
         self.update_chord_tracking_info(chord_duration)
 
     def add_accent_chord(self, chord, chord_duration, starting_offset, accent_full_modifier=False):
+        """
+        Add an accent chord, where notes from the chord are played one after the other
+
+        Args:
+            chord (string): chord to add
+            chord_duration (int): duration of chord to add
+            starting_offset (int): offset into the chord to start the accent
+            accent_full_modifier (bool): if true, the sequence is played for the entire duration of the chord
+                                         if false, notes are played for random durations
+        """
         octave=4
         if accent_full_modifier == True:
             num_accents= MAX_ACCENTS_IN_SECTION
