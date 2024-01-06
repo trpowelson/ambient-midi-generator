@@ -32,20 +32,20 @@ class music_section:
 
     def add_regular_chord(self, chord, chord_duration):
         octave=4
-        note_num=0
-        for note_str in chord:
-            note_num=note_num+1
+        for note_num, note_str in enumerate(chord):
             note=note_to_number(note_str, octave)
-            self.track.append(Message('note_on', note=note, velocity=64, time=self.next_time))
-        note_num=0
-        for note_str in chord:
-            note_num=note_num+1
+            if note_num == 0:
+                start_time=self.next_time
+            else:
+                start_time=0
+            self.track.append(Message('note_on', note=note, velocity=64, time=start_time))
+        for note_num, note_str in enumerate(chord):
             
             # We want all notes in the chord to be the same length, and have to account
             # for how the note_off gets processed.  The first note should get added
             # with the full time duration.  Any subsequent notes should have the same
             # end time as the first note, so end_time is set to 0            
-            if note_num== 1:
+            if note_num == 0:
                 end_time=chord_duration
             else:
                 end_time=0
@@ -60,16 +60,14 @@ class music_section:
 
     def add_melody_chord(self, chord, chord_duration):
         octave=4
-        note_num=0
         chord_duration_bars=int(chord_duration/TICKS_PER_BAR)
         mel_note_duration1_bars=0
         mel_note_duration2_bars=0
         mel_note_duration3_bars=0
         
-        for note_str in chord:
-            note_num=note_num+1
+        for note_num, note_str in enumerate(chord):
             note=note_to_number(note_str, octave)
-            if note_num==1:
+            if note_num==0:
                 # When we get to the first note, first we find the times for this note and the next two notes
                 # The first two notes are random length
                 rand_upper_bound=round(chord_duration_bars/2)
@@ -85,11 +83,11 @@ class music_section:
                 # Add this first note to the melody track
                 self.track.append(Message('note_on', note=note, velocity=64, time=self.next_time))
                 self.track.append(Message('note_off', note=note, velocity=64, time=mel_note_duration1_bars*TICKS_PER_BAR))
-            if note_num==2 and mel_note_duration2_bars > 0:
+            if note_num==1 and mel_note_duration2_bars > 0:
                 # The second note has time=0 to start immediately after the first
                 self.track.append(Message('note_on', note=note, velocity=64, time=0))
                 self.track.append(Message('note_off', note=note, velocity=64, time=mel_note_duration2_bars*TICKS_PER_BAR))
-            if note_num==3 and mel_note_duration3_bars > 0:
+            if note_num==2 and mel_note_duration3_bars > 0:
                 # The third note has time=0 to start immediately after the second
                 self.track.append(Message('note_on', note=note, velocity=64, time=0))
                 self.track.append(Message('note_off', note=note, velocity=64, time=mel_note_duration3_bars*TICKS_PER_BAR))
@@ -98,7 +96,7 @@ class music_section:
         self.time_added=chord_duration
         self.update_chord_tracking_info(chord_duration)
 
-    def add_accent_chord(self, chord, chord_duration,accent_full_modifier=False):
+    def add_accent_chord(self, chord, chord_duration, starting_offset, accent_full_modifier=False):
         octave=4
         if accent_full_modifier == True:
             num_accents= MAX_ACCENTS_IN_SECTION
@@ -107,7 +105,7 @@ class music_section:
         else:
             num_accents=random.randint(2,30)
             accent_time=round(TICKS_PER_BAR/(2**random.randint(0,2))) # 1/2, 1/4, or 1/8 bar
-            accent1_offset = TICKS_PER_BAR*1
+            accent1_offset = TICKS_PER_BAR*starting_offset
         octave_offset=0
 
         

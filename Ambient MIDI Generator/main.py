@@ -11,7 +11,9 @@ from music_section import *
 
 
 
-def generate_chord_sequence(num_chords=4):
+def generate_chord_sequence(num_chords,song_key):
+    global song_scale_notes
+    song_scale_notes = scales.get_notes(song_key) 
     chord_list_shorthand = []
     for n in NOTES:
         chord_list_shorthand.append(n+"maj7")
@@ -42,7 +44,7 @@ def test_chord_in_key(chord):
             return False
     return True
 
-def create_midi_file(chord_sequence, output_file):
+def create_midi_file(output_file):
     
     mid = MidiFile(type=1)
     TICKS_PER_BAR = mid.ticks_per_beat*4
@@ -50,11 +52,15 @@ def create_midi_file(chord_sequence, output_file):
     chord_track = MidiTrack()
     melody_track = MidiTrack()
     accent_track = MidiTrack()
+    accent_track_2 = MidiTrack()
     full_accent_track = MidiTrack()
+    key_change_track = MidiTrack()
     mid.tracks.append(chord_track)
     mid.tracks.append(melody_track)
     mid.tracks.append(accent_track)
+    mid.tracks.append(accent_track_2)
     mid.tracks.append(full_accent_track)
+    mid.tracks.append(key_change_track)
 
     # Set tempo, in microseconds per beat
     us_per_beat=int(mido.tempo2bpm(tempo))
@@ -64,30 +70,59 @@ def create_midi_file(chord_sequence, output_file):
     chord_section=music_section(chord_track)
     melody_section=music_section(melody_track)
     accent_section=music_section(accent_track)
+    accent_section_2=music_section(accent_track_2)
     full_accent_section=music_section(full_accent_track)
-
-
-    # Add each chord to each track
-    for chord in chord_sequence:
-        chord_duration_bars=random.choice(chord_duration_bars_choices)
-        chord_duration = chord_duration_bars*TICKS_PER_BAR
+    key_change_section=music_section(key_change_track)
+    
+    for part_num, song_part in enumerate(song_part_info):
+        chord_duration_bars_choices = song_part["Chord duration bar choices: "]
+        num_chords = song_part["num_chords: "]
+        song_key = song_part["Key: "]
+        accent1_offset_bars = song_part["Accent 1 offset bars: "]
+        chord_sequence = generate_chord_sequence(num_chords,song_key)
         
-        while True:
-            chord_section.add_regular_chord(chord,chord_duration)
-            melody_section.add_melody_chord(chord,chord_duration)
-            if random.randint(0,1) == 1:
-                accent_section.add_accent_chord(chord,chord_duration)
-            else:
-                accent_section.add_empty_chord(chord_duration)
+        print("Creating section with " + str(num_chords) + " chords, key of " + song_key + ", and accent 1 offset of " + str(accent1_offset_bars) + " bars.")
+        
 
-            full_accent_section.add_accent_chord(chord,chord_duration,True)
+        # Add each chord to each track
+        for chord_num, chord in enumerate(chord_sequence):
+            print("Adding chord " + str(chord_num) + " of " + str(len(chord_sequence)))
+            chord_duration_bars=random.choice(chord_duration_bars_choices)
+            chord_duration = chord_duration_bars*TICKS_PER_BAR
             
-            # If the chord length is 1 bar, we will randomly repeat the same chord
-            if chord_duration_bars == 1:
+            while True:
+                if random.randint(0,9) == 0:
+                    chord_section.add_empty_chord(chord_duration)
+                else:
+                    chord_section.add_regular_chord(chord,chord_duration)
+                    
+                melody_section.add_melody_chord(chord,chord_duration)
+                
                 if random.randint(0,1) == 1:
+                    accent_section.add_accent_chord(chord,chord_duration,1)
+                else:
+                    accent_section.add_empty_chord(chord_duration)
+                    
+                if random.randint(0,1) == 1:
+                    accent_section_2.add_accent_chord(chord,chord_duration,2)
+                else:
+                    accent_section_2.add_empty_chord(chord_duration)
+
+                full_accent_section.add_accent_chord(chord,chord_duration,0,True)
+                
+                if part_num != 0 and chord_num==0:
+                    key_change_section.add_regular_chord(chord,chord_duration)
+                    print("adding regular chord")
+                else:
+                    key_change_section.add_empty_chord(chord_duration)
+                    print("adding empty chord")
+                
+                # If the chord length is 1 bar, we will randomly repeat the same chord
+                if chord_duration_bars == 1:
+                    if random.randint(0,1) == 1:
+                        break
+                else:
                     break
-            else:
-                break
 
 
     # Save the MIDI file
@@ -96,13 +131,19 @@ def create_midi_file(chord_sequence, output_file):
 
 if __name__ == "__main__":
     num_chords = 20  # Change this value to generate a different number of chords
-    tempo = 60 # Tempo in BPM
-    chord_duration_bars_choices = [1,2,4,8,16]
-    song_key = "G"  # uppercase for major, lowercase for minor
-    song_scale_notes = scales.get_notes(song_key)
-    accent1_offset_bars = 1
+    tempo = 200 # Tempo in BPM
     
-    print(str(song_scale_notes))
-    chord_sequence = generate_chord_sequence(num_chords)
+    song_part_info = [{"Chord duration bar choices: ": [1,2,4,8,16],
+                      "num_chords: ": 20,
+                      "Key: ": "A",
+                      "Accent 1 offset bars: ": 1},
+                      
+                      {"Chord duration bar choices: ": [2,4,8],
+                      "num_chords: ": 5,
+                      "Key: ": "f",
+                      "Accent 1 offset bars: ": 1},
+                      ]
+    
+
     filename="midi-output.mid"
-    create_midi_file(chord_sequence,filename)
+    create_midi_file(filename)
