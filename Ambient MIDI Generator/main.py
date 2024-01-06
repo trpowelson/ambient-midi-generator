@@ -83,6 +83,14 @@ def create_midi_file(output_file):
     accent_track_2 = MidiTrack()
     full_accent_track = MidiTrack()
     key_change_track = MidiTrack()
+    
+    chord_track.append(MetaMessage('track_name', name='Chord track'))
+    melody_track.append(MetaMessage('track_name', name='Melody track'))
+    accent_track.append(MetaMessage('track_name', name='Accent track'))
+    accent_track_2.append(MetaMessage('track_name', name='Accent track 2'))
+    full_accent_track.append(MetaMessage('track_name', name='Full accent track'))
+    key_change_track.append(MetaMessage('track_name', name='Key change track'))
+
     mid.tracks.append(chord_track)
     mid.tracks.append(melody_track)
     mid.tracks.append(accent_track)
