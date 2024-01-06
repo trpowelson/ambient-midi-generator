@@ -102,6 +102,7 @@ def create_midi_file(output_file):
     full_accent_section=music_section(full_accent_track)
     key_change_section=music_section(key_change_track)
     
+    # The first loop is for each section of the song, which has its own key
     for part_num, song_part in enumerate(song_part_info):
         chord_duration_bars_choices = song_part["Chord duration bar choices: "]
         num_chords = song_part["num_chords: "]
@@ -114,7 +115,6 @@ def create_midi_file(output_file):
 
         # Add each chord to each track
         for chord_num, chord in enumerate(chord_sequence):
-            print("Adding chord " + str(chord_num) + " of " + str(len(chord_sequence)))
             chord_duration_bars=random.choice(chord_duration_bars_choices)
             chord_duration = chord_duration_bars*TICKS_PER_BAR
             
@@ -140,10 +140,8 @@ def create_midi_file(output_file):
                 
                 if part_num != 0 and chord_num==0:
                     key_change_section.add_regular_chord(chord,chord_duration)
-                    print("adding regular chord")
                 else:
                     key_change_section.add_empty_chord(chord_duration)
-                    print("adding empty chord")
                 
                 # If the chord length is 1 bar, we will randomly repeat the same chord
                 if chord_duration_bars == 1:
