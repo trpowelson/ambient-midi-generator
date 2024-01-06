@@ -1,6 +1,9 @@
-# With help from:
-#https://medium.com/@stevehiehn/how-to-generate-music-with-python-the-basics-62e8ea9b99a5
+"""
+main.py
 
+Module that creates a random, generative MIDI file.
+
+"""
 
 import mido, random
 from mido import MidiFile, MidiTrack, Message, MetaMessage
@@ -9,9 +12,19 @@ from mingus.core import chords, scales, progressions
 from music_utilities import *
 from music_section import *
 
-
-
 def generate_chord_sequence(num_chords,song_key):
+    """
+    Generates the chord sequence we will use for this section of the song.
+    All chords will be in the song's key.
+
+    Args:
+        num_chords (int): how many chords to generate
+        song_key (_type_): _description_
+
+    Returns:
+        chord_sequence (list): List of chords to use for this section of the song,
+                               e.g. ["Cmaj7", "Dmin7", "Gmaj7" , ...]
+    """
     global song_scale_notes
     song_scale_notes = scales.get_notes(song_key) 
     chord_list_shorthand = []
@@ -37,7 +50,15 @@ def generate_chord_sequence(num_chords,song_key):
 
     return chord_sequence
 
-def test_chord_in_key(chord):
+def test_chord_in_key(chord) -> bool:
+    """
+    Tests if the input chord is within the current key. 
+
+    Args:
+        chord (string): Shorthand of the chord to test, e.g. 'Cmaj7'
+    Output:
+        bool: True if the chord is in the current key, False otherwise
+    """
     chord_notes=chords.from_shorthand(chord)
     for note in chord_notes:
         if note not in song_scale_notes:
@@ -45,6 +66,13 @@ def test_chord_in_key(chord):
     return True
 
 def create_midi_file(output_file):
+    """
+    Creates a MIDI file with a random chord progression, and populates 
+    it with multiple tracks.
+
+    Args:
+        output_file (string): name of the MIDI file to create
+    """
     
     mid = MidiFile(type=1)
     TICKS_PER_BAR = mid.ticks_per_beat*4
