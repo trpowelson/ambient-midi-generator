@@ -29,13 +29,13 @@ def generate_chord_sequence(num_chords,song_key,first_chord_sequence):
     """
     global song_scale_notes
     song_scale_notes = scales.get_notes(song_key) 
-    chord_list_shorthand = []
-    for n in NOTES:
-        chord_list_shorthand.append(n+"maj7")
-        chord_list_shorthand.append(n+"min7")
     
-    #print(chords.from_shorthand("Cmaj7"))
-
+    # Create list of possible chords to use in this section
+    chord_list_shorthand = []
+    for suffix in ["maj", "min", "maj7","min7"]:
+        for note in song_scale_notes:
+            chord_list_shorthand.append(note+suffix)
+    
     # Create a list to store the generated chord sequence
     chord_sequence = []
     
@@ -177,10 +177,10 @@ def create_midi_file(output_file):
     print(f"MIDI file '{output_file}' generated successfully.")
 
 if __name__ == "__main__":
-    tempo = 200 # Tempo in BPM
+    tempo = 60 # Tempo in BPM
     
     song_part_info = [{"Chord duration bar choices: ": [1,2,4,8,16],
-                      "num_chords: ": 20,
+                      "num_chords: ": 8,
                       "first chord sequence": ["I","V","vi","IV"],
                       "Key: ": "A",
                       "Accent 1 offset bars: ": 1},
@@ -190,6 +190,12 @@ if __name__ == "__main__":
                       "first chord sequence": [],
                       "Key: ": "f",
                       "Accent 1 offset bars: ": 1},
+                      
+                      {"Chord duration bar choices: ": [1,2,4],
+                      "num_chords: ": 4,
+                      "first chord sequence": [],
+                      "Key: ": "C",
+                      "Accent 1 offset bars: ": 2},
                       ]
     
 
