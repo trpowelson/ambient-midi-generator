@@ -9,9 +9,10 @@ NOTES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 OCTAVES = list(range(11))
 
 NOTES_IN_OCTAVE = len(NOTES)
-ticks_per_bar = 1920    # Note once we create the MIDI object we can calculate
-                        # and override this value
+
 MAX_ACCENTS_IN_SECTION = 1000
+
+TICKS_PER_BAR = 1920
 
 note_errors = {
     'bad_note': 'Input note was not C, C#, D, Eb, E, F, F#, G, Ab, A, Bb, or B',
@@ -28,22 +29,24 @@ def swap_accidentals(note):
     Returns:
         note (string): output note, with accidentals swapped
     """
-    if note == 'Db':
-        return 'C#'
-    if note == 'D#':
-        return 'Eb'
-    if note == 'E#':
-        return 'F'
-    if note == 'Gb':
-        return 'F#'
-    if note == 'G#':
-        return 'Ab'
-    if note == 'A#':
-        return 'Bb'
-    if note == 'B#':
-        return 'C'
+    ret_note= note
+    match note:
+        case 'Db':
+            ret_note= 'C#'
+        case 'D#':
+            ret_note= 'Eb'
+        case 'E#':
+            ret_note= 'F'
+        case 'Gb':
+            ret_note= 'F#'
+        case 'G#':
+            ret_note= 'Ab'
+        case 'A#':
+            ret_note= 'Bb'
+        case 'B#':
+            ret_note= 'C'
 
-    return note
+    return ret_note
 
 def note_to_number(note: str, octave: int) -> int:
     """
