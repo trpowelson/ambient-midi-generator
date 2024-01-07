@@ -12,14 +12,16 @@ from mingus.core import chords, scales, progressions
 from music_utilities import *
 from music_section import *
 
-def generate_chord_sequence(num_chords,song_key):
+def generate_chord_sequence(num_chords,song_key,first_chord_sequence):
     """
     Generates the chord sequence we will use for this section of the song.
     All chords will be in the song's key.
 
     Args:
         num_chords (int): how many chords to generate
-        song_key (_type_): _description_
+        song_key (str): key of section, e.g. 'C'
+        first_chord_sequence (array of strings): first chords to use for this section of the song.
+                                                 Use random chords in key after this sequence.
 
     Returns:
         chord_sequence (list): List of chords to use for this section of the song,
@@ -36,7 +38,14 @@ def generate_chord_sequence(num_chords,song_key):
 
     # Create a list to store the generated chord sequence
     chord_sequence = []
-    chord_sequence += progressions.to_chords(["I","V","vi","IV"], song_key)
+    
+    # If the user passed in a first chord sequence, add it to the chord sequence
+    if len(first_chord_sequence) > 0:
+        chord_sequence += progressions.to_chords(first_chord_sequence, song_key)
+        # Subtract the number of chords we just added from the total number of chords
+        num_chords -= len(first_chord_sequence)
+        
+    assert len(chord_sequence) <= num_chords, "First chord sequence is longer than the number of chords in the section"
     print("Generating MIDI tracks with chord sequence: " + str(chord_sequence))
 
     # Generate random chord sequence
@@ -77,6 +86,7 @@ def create_midi_file(output_file):
     mid = MidiFile(type=1)
     TICKS_PER_BAR = mid.ticks_per_beat*4
     
+    # Create each track
     chord_track = MidiTrack()
     melody_track = MidiTrack()
     accent_track = MidiTrack()
@@ -84,6 +94,7 @@ def create_midi_file(output_file):
     full_accent_track = MidiTrack()
     key_change_track = MidiTrack()
     
+    # Set the name of each track
     chord_track.append(MetaMessage('track_name', name='Chord track'))
     melody_track.append(MetaMessage('track_name', name='Melody track'))
     accent_track.append(MetaMessage('track_name', name='Accent track'))
@@ -91,6 +102,7 @@ def create_midi_file(output_file):
     full_accent_track.append(MetaMessage('track_name', name='Full accent track'))
     key_change_track.append(MetaMessage('track_name', name='Key change track'))
 
+    # Add each track to the MIDI file
     mid.tracks.append(chord_track)
     mid.tracks.append(melody_track)
     mid.tracks.append(accent_track)
@@ -116,7 +128,8 @@ def create_midi_file(output_file):
         num_chords = song_part["num_chords: "]
         song_key = song_part["Key: "]
         accent1_offset_bars = song_part["Accent 1 offset bars: "]
-        chord_sequence = generate_chord_sequence(num_chords,song_key)
+        first_chord_sequence = song_part["first chord sequence"]
+        chord_sequence = generate_chord_sequence(num_chords,song_key,first_chord_sequence)
         
         print("Creating section with " + str(num_chords) + " chords, key of " + song_key + ", and accent 1 offset of " + str(accent1_offset_bars) + " bars.")
         
@@ -164,16 +177,17 @@ def create_midi_file(output_file):
     print(f"MIDI file '{output_file}' generated successfully.")
 
 if __name__ == "__main__":
-    num_chords = 20  # Change this value to generate a different number of chords
     tempo = 200 # Tempo in BPM
     
     song_part_info = [{"Chord duration bar choices: ": [1,2,4,8,16],
                       "num_chords: ": 20,
+                      "first chord sequence": ["I","V","vi","IV"],
                       "Key: ": "A",
                       "Accent 1 offset bars: ": 1},
                       
                       {"Chord duration bar choices: ": [2,4,8],
-                      "num_chords: ": 5,
+                      "num_chords: ": 4,
+                      "first chord sequence": [],
                       "Key: ": "f",
                       "Accent 1 offset bars: ": 1},
                       ]
