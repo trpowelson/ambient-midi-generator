@@ -1,6 +1,4 @@
 """
-utilities.py
-
 Module containing helper functions and global variables
 """
 

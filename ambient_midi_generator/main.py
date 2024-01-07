@@ -9,9 +9,7 @@ import mido, random
 from mido import MidiFile, MidiTrack, Message, MetaMessage
 from mingus.core import chords, scales, progressions
 
-#from . MusicUtilities import *
-#from . MusicSection import *
-from MusicUtilities import *
+from music_utilities import *
 from MusicSection import *
 
 
@@ -31,23 +29,23 @@ def generate_chord_sequence(num_chords,song_key,first_chord_sequence):
                                e.g. ["Cmaj7", "Dmin7", "Gmaj7" , ...]
     """
     global song_scale_notes
-    song_scale_notes = scales.get_notes(song_key) 
-    
+    song_scale_notes = scales.get_notes(song_key)
+
     # Create list of possible chords to use in this section
     chord_list_shorthand = []
     for suffix in ["maj", "min", "maj7","min7"]:
         for note in song_scale_notes:
             chord_list_shorthand.append(note+suffix)
-    
+
     # Create a list to store the generated chord sequence
     chord_sequence = []
-    
+
     # If the user passed in a first chord sequence, add it to the chord sequence
     if len(first_chord_sequence) > 0:
         chord_sequence += progressions.to_chords(first_chord_sequence, song_key)
         # Subtract the number of chords we just added from the total number of chords
         num_chords -= len(first_chord_sequence)
-        
+
     assert len(chord_sequence) <= num_chords, "First chord sequence is longer than the number of chords in the section"
     print("Generating MIDI tracks with chord sequence: " + str(chord_sequence))
 
@@ -64,7 +62,7 @@ def generate_chord_sequence(num_chords,song_key,first_chord_sequence):
 
 def test_chord_in_key(chord) -> bool:
     """
-    Tests if the input chord is within the current key. 
+    Tests if the input chord is within the current key.
 
     Args:
         chord (string): Shorthand of the chord to test, e.g. 'Cmaj7'
@@ -79,16 +77,16 @@ def test_chord_in_key(chord) -> bool:
 
 def create_midi_file(output_file):
     """
-    Creates a MIDI file with a random chord progression, and populates 
+    Creates a MIDI file with a random chord progression, and populates
     it with multiple tracks.
 
     Args:
         output_file (string): name of the MIDI file to create
     """
-    
+
     mid = MidiFile(type=1)
     TICKS_PER_BAR = mid.ticks_per_beat*4
-    
+
     # Create each track
     chord_track = MidiTrack()
     melody_track = MidiTrack()
@@ -96,7 +94,7 @@ def create_midi_file(output_file):
     accent_track_2 = MidiTrack()
     full_accent_track = MidiTrack()
     key_change_track = MidiTrack()
-    
+
     # Set the name of each track
     chord_track.append(MetaMessage('track_name', name='Chord track'))
     melody_track.append(MetaMessage('track_name', name='Melody track'))
@@ -124,7 +122,7 @@ def create_midi_file(output_file):
     accent_section_2=MusicSection(accent_track_2)
     full_accent_section=MusicSection(full_accent_track)
     key_change_section=MusicSection(key_change_track)
-    
+
     # The first loop is for each section of the song, which has its own key
     for part_num, song_part in enumerate(song_part_info):
         chord_duration_bars_choices = song_part["Chord duration bar choices: "]
@@ -133,40 +131,40 @@ def create_midi_file(output_file):
         accent1_offset_bars = song_part["Accent 1 offset bars: "]
         first_chord_sequence = song_part["first chord sequence"]
         chord_sequence = generate_chord_sequence(num_chords,song_key,first_chord_sequence)
-        
+
         print("Creating section with " + str(num_chords) + " chords, key of " + song_key + ", and accent 1 offset of " + str(accent1_offset_bars) + " bars.")
-        
+
 
         # Add each chord to each track
         for chord_num, chord in enumerate(chord_sequence):
             chord_duration_bars=random.choice(chord_duration_bars_choices)
             chord_duration = chord_duration_bars*TICKS_PER_BAR
-            
+
             while True:
                 if random.randint(0,9) == 0:
                     chord_section.add_empty_chord(chord_duration)
                 else:
                     chord_section.add_regular_chord(chord,chord_duration)
-                    
+
                 melody_section.add_melody_chord(chord,chord_duration)
-                
+
                 if random.randint(0,1) == 1:
                     accent_section.add_accent_chord(chord,chord_duration,1)
                 else:
                     accent_section.add_empty_chord(chord_duration)
-                    
+
                 if random.randint(0,1) == 1:
                     accent_section_2.add_accent_chord(chord,chord_duration,2)
                 else:
                     accent_section_2.add_empty_chord(chord_duration)
 
                 full_accent_section.add_accent_chord(chord,chord_duration,0,True)
-                
+
                 if part_num != 0 and chord_num==0:
                     key_change_section.add_regular_chord(chord,chord_duration)
                 else:
                     key_change_section.add_empty_chord(chord_duration)
-                
+
                 # If the chord length is 1 bar, we will randomly repeat the same chord
                 if chord_duration_bars == 1:
                     if random.randint(0,1) == 1:
@@ -181,26 +179,26 @@ def create_midi_file(output_file):
 
 if __name__ == "__main__":
     tempo = 60 # Tempo in BPM
-    
+
     song_part_info = [{"Chord duration bar choices: ": [1,2,4,8,16],
                       "num_chords: ": 8,
                       "first chord sequence": ["I","V","vi","IV"],
                       "Key: ": "A",
                       "Accent 1 offset bars: ": 1},
-                      
+
                       {"Chord duration bar choices: ": [2,4,8],
                       "num_chords: ": 4,
                       "first chord sequence": [],
                       "Key: ": "f",
                       "Accent 1 offset bars: ": 1},
-                      
+
                       {"Chord duration bar choices: ": [1,2,4],
                       "num_chords: ": 4,
                       "first chord sequence": [],
                       "Key: ": "C",
                       "Accent 1 offset bars: ": 2},
                       ]
-    
+
 
     filename="midi-output.mid"
     create_midi_file(filename)
