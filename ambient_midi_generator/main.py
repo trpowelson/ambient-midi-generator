@@ -9,8 +9,11 @@ import mido, random
 from mido import MidiFile, MidiTrack, Message, MetaMessage
 from mingus.core import chords, scales, progressions
 
-from music_utilities import *
-from music_section import *
+#from . MusicUtilities import *
+#from . MusicSection import *
+from MusicUtilities import *
+from MusicSection import *
+
 
 def generate_chord_sequence(num_chords,song_key,first_chord_sequence):
     """
@@ -115,12 +118,12 @@ def create_midi_file(output_file):
     chord_track.append(MetaMessage('set_tempo', tempo=us_per_beat))
 
     # Initialize music sections for each of our tracks
-    chord_section=music_section(chord_track)
-    melody_section=music_section(melody_track)
-    accent_section=music_section(accent_track)
-    accent_section_2=music_section(accent_track_2)
-    full_accent_section=music_section(full_accent_track)
-    key_change_section=music_section(key_change_track)
+    chord_section=MusicSection(chord_track)
+    melody_section=MusicSection(melody_track)
+    accent_section=MusicSection(accent_track)
+    accent_section_2=MusicSection(accent_track_2)
+    full_accent_section=MusicSection(full_accent_track)
+    key_change_section=MusicSection(key_change_track)
     
     # The first loop is for each section of the song, which has its own key
     for part_num, song_part in enumerate(song_part_info):

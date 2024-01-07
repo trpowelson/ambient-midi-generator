@@ -1,9 +1,9 @@
 import mido, random
 from mido import MidiFile, MidiTrack, Message, MetaMessage
-from music_utilities import *
+from MusicUtilities import *
 
 
-class music_section:
+class MusicSection:
     
     def __init__(self, track):
         """
