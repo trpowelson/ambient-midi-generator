@@ -2,13 +2,13 @@
 Python scripts to generate MIDI for ambient music
 
 ## Usage
-Update main.py to set the parameters (tempo, song key, etc), then run:
-`python main.py`
+Update `__main__.py` to set the parameters (tempo, song key, etc), then run:
+`python -m  ambient_midi_generator`
 
 This generates a file named `midi-output.mid`, which can then be imported into a DAW such as Ableton, Pro Tools, REAPER, etc.
 
 ## Requirements
-This is tested using Python 3.12.1, and should work with any version of Python 3.
+Python 3.10 or above
 
 Dependencies include [MIDO](https://pypi.org/project/mido/) and [MINGUS](https://bspaans.github.io/python-mingus/)
 
