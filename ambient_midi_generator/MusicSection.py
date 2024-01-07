@@ -91,7 +91,7 @@ class MusicSection:
             chord_duration (int): duration of chord to add
         """
         octave=4
-        chord_duration_bars=int(chord_duration/TICKS_PER_BAR)
+        chord_duration_bars=int(chord_duration/ticks_per_bar)
         mel_note_duration1_bars=0
         mel_note_duration2_bars=0
         mel_note_duration3_bars=0
@@ -108,27 +108,27 @@ class MusicSection:
                 mel_note_duration1_bars=random.randint(1,rand_upper_bound)
 
                 if mel_note_duration1_bars<chord_duration_bars:
-                    mel_note_duration2_bars=
-                         random.randint(1,(chord_duration_bars-mel_note_duration1_bars))
+                    mel_note_duration2_bars=random.randint(1,
+                                                (chord_duration_bars-mel_note_duration1_bars))
                     # The last note will be the remainder of the bar (or 0 if the first two notes
                     # add up to 8 bars)
-                    mel_note_duration3_bars=
-                         (chord_duration_bars-(mel_note_duration1_bars+mel_note_duration2_bars))
+                    mel_note_duration3_bars=(chord_duration_bars-
+                                                (mel_note_duration1_bars+mel_note_duration2_bars))
 
                 # Add this first note to the melody track
                 self.track.append(Message('note_on', note=note, velocity=64, time=self.next_time))
                 self.track.append(Message('note_off', note=note, velocity=64,
-                                          time=mel_note_duration1_bars*TICKS_PER_BAR))
+                                          time=mel_note_duration1_bars*ticks_per_bar))
             if note_num==1 and mel_note_duration2_bars > 0:
                 # The second note has time=0 to start immediately after the first
                 self.track.append(Message('note_on', note=note, velocity=64, time=0))
                 self.track.append(Message('note_off', note=note, velocity=64,
-                                          time=mel_note_duration2_bars*TICKS_PER_BAR))
+                                          time=mel_note_duration2_bars*ticks_per_bar))
             if note_num==2 and mel_note_duration3_bars > 0:
                 # The third note has time=0 to start immediately after the second
                 self.track.append(Message('note_on', note=note, velocity=64, time=0))
                 self.track.append(Message('note_off', note=note, velocity=64,
-                                          time=mel_note_duration3_bars*TICKS_PER_BAR))
+                                          time=mel_note_duration3_bars*ticks_per_bar))
 
         # Save information about this chord so we have it when adding the next chord
         self.time_added=chord_duration
@@ -149,12 +149,12 @@ class MusicSection:
         octave=4
         if accent_full_modifier == True:
             num_accents= MAX_ACCENTS_IN_SECTION
-            accent_time=round(TICKS_PER_BAR/(4)) # 1/2, 1/4, or 1/8 bar
+            accent_time=round(ticks_per_bar/(4)) # 1/2, 1/4, or 1/8 bar
             accent1_offset=0
         else:
             num_accents=random.randint(2,30)
-            accent_time=round(TICKS_PER_BAR/(2**random.randint(0,2))) # 1/2, 1/4, or 1/8 bar
-            accent1_offset = TICKS_PER_BAR*starting_offset
+            accent_time=round(ticks_per_bar/(2**random.randint(0,2))) # 1/2, 1/4, or 1/8 bar
+            accent1_offset = ticks_per_bar*starting_offset
         octave_offset=0
 
 

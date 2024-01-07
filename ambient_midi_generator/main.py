@@ -9,8 +9,8 @@ import mido, random
 from mido import MidiFile, MidiTrack, Message, MetaMessage
 from mingus.core import chords, scales, progressions
 
-from music_utilities import *
-from MusicSection import *
+from music_utilities import note_to_number
+from MusicSection import MusicSection
 
 
 def generate_chord_sequence(num_chords,song_key,first_chord_sequence):
@@ -46,7 +46,7 @@ def generate_chord_sequence(num_chords,song_key,first_chord_sequence):
         # Subtract the number of chords we just added from the total number of chords
         num_chords -= len(first_chord_sequence)
 
-    assert len(chord_sequence) <= num_chords, "First chord sequence is longer than the number of chords in the section"
+    assert len(chord_sequence) <= num_chords, "Num chords not long enough for first chord sequence"
     print("Generating MIDI tracks with chord sequence: " + str(chord_sequence))
 
     # Generate random chord sequence
@@ -85,7 +85,7 @@ def create_midi_file(output_file):
     """
 
     mid = MidiFile(type=1)
-    TICKS_PER_BAR = mid.ticks_per_beat*4
+    ticks_per_bar = mid.ticks_per_beat*4
 
     # Create each track
     chord_track = MidiTrack()
@@ -111,8 +111,8 @@ def create_midi_file(output_file):
     mid.tracks.append(full_accent_track)
     mid.tracks.append(key_change_track)
 
-    # Set tempo, in microseconds per beat
-    us_per_beat=int(mido.tempo2bpm(tempo))
+    # Set TEMPO, in microseconds per beat
+    us_per_beat=int(mido.tempo2bpm(TEMPO))
     chord_track.append(MetaMessage('set_tempo', tempo=us_per_beat))
 
     # Initialize music sections for each of our tracks
@@ -132,13 +132,14 @@ def create_midi_file(output_file):
         first_chord_sequence = song_part["first chord sequence"]
         chord_sequence = generate_chord_sequence(num_chords,song_key,first_chord_sequence)
 
-        print("Creating section with " + str(num_chords) + " chords, key of " + song_key + ", and accent 1 offset of " + str(accent1_offset_bars) + " bars.")
+        print("Creating section with " + str(num_chords) + " chords, key of " + song_key +
+              ", and accent 1 offset of " + str(accent1_offset_bars) + " bars.")
 
 
         # Add each chord to each track
         for chord_num, chord in enumerate(chord_sequence):
             chord_duration_bars=random.choice(chord_duration_bars_choices)
-            chord_duration = chord_duration_bars*TICKS_PER_BAR
+            chord_duration = chord_duration_bars*ticks_per_bar
 
             while True:
                 if random.randint(0,9) == 0:
@@ -178,7 +179,7 @@ def create_midi_file(output_file):
     print(f"MIDI file '{output_file}' generated successfully.")
 
 if __name__ == "__main__":
-    tempo = 60 # Tempo in BPM
+    TEMPO = 60 # Tempo in BPM
 
     song_part_info = [{"Chord duration bar choices: ": [1,2,4,8,16],
                       "num_chords: ": 8,
@@ -200,5 +201,5 @@ if __name__ == "__main__":
                       ]
 
 
-    filename="midi-output.mid"
-    create_midi_file(filename)
+    FILENAME="midi-output.mid"
+    create_midi_file(FILENAME)
