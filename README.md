@@ -22,7 +22,7 @@ MIDI is the Musical Instrument Digital Interface, which is used to represent mus
 This should be imported into a DAW (Digital Audio Workstation), and each track should be assigned a different instrument
 
 ### What instruments work best?
-For the first track which has straight chords, an ambient/droning type instrument works well.  I have been using [Hybernate](https://rigid-audio.com/products_hibernate.html) from Rigid Audio For a free option, consider looking at [Vital](https://vital.audio/) and experimenting with different presets such as Salomon.
+For the first track which has straight chords, an ambient/droning type instrument works well.  I have been using [Hybernate](https://rigid-audio.com/products_hibernate.html) from Rigid Audio.  For a free option, consider looking at [Spitfire LABS](https://labs.spitfireaudio.com/?sortBy=prod_products_labs_popular) or [Vital](https://vital.audio/).
 
 For all the other tracks, experiment with different sounds.  I tend to like a mix of instrument types, some with subtle sounds and some that are more pronounced.
 
