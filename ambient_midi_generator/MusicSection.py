@@ -1,9 +1,14 @@
-import mido, random
+import random
 from mido import MidiFile, MidiTrack, Message, MetaMessage
-from music_utilities import *
+from music_utilities import note_to_number, ticks_per_bar, MAX_ACCENTS_IN_SECTION
 
 
 class MusicSection:
+    """
+    Class to manage adding chords to a track.  This class should be associated with a MIDI
+    track that it will add notes to.  The class keeps track of the current time in the track.
+
+    """
 
     def __init__(self, track):
         """

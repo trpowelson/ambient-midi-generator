@@ -5,11 +5,12 @@ Module that creates a random, generative MIDI file.
 
 """
 
-import mido, random
-from mido import MidiFile, MidiTrack, Message, MetaMessage
+import random
+import mido
+from mido import MidiFile, MidiTrack, MetaMessage
 from mingus.core import chords, scales, progressions
 
-from music_utilities import note_to_number
+from music_utilities import note_to_number, ticks_per_bar
 from MusicSection import MusicSection
 
 
@@ -70,10 +71,11 @@ def test_chord_in_key(chord) -> bool:
         bool: True if the chord is in the current key, False otherwise
     """
     chord_notes=chords.from_shorthand(chord)
+    ret_val=True
     for note in chord_notes:
         if note not in song_scale_notes:
-            return False
-    return True
+            ret_val=False
+    return ret_val
 
 def create_midi_file(output_file):
     """
@@ -180,6 +182,7 @@ def create_midi_file(output_file):
 
 if __name__ == "__main__":
     TEMPO = 60 # Tempo in BPM
+    ticks_per_bar = 1920
 
     song_part_info = [{"Chord duration bar choices: ": [1,2,4,8,16],
                       "num_chords: ": 8,
